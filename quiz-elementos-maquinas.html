@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Elementos de Máquinas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .quiz-content {
+            padding: 30px;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .start-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 1.2em;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .options {
+            list-style: none;
+        }
+
+        .option {
+            background: #f8f9fa;
+            margin: 10px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .option.correct {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+
+        .option.incorrect {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .option label {
+            display: block;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .progress {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .score-text {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .gabarito {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .gabarito h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .gabarito-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gabarito-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .quiz-content {
+                padding: 20px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .progress {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Quiz Elementos de Máquinas</h1>
+            <p>Teste seus conhecimentos sobre elementos de fixação e máquinas</p>
+        </div>
+
+        <div class="quiz-content">
+            <!-- Tela inicial -->
+            <div class="start-screen" id="startScreen">
+                <h2>Bem-vindo ao Quiz!</h2>
+                <p>Este quiz contém 40 questões sobre Elementos de Máquinas. Você terá que escolher a alternativa correta para cada pergunta. Ao final, você verá sua pontuação e poderá consultar o gabarito.</p>
+                <button class="btn" onclick="startQuiz()">Iniciar Quiz</button>
+            </div>
+
+            <!-- Container das questões -->
+            <div class="question-container" id="questionContainer">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Questão 1 de 40</div>
+                    <div class="question-text" id="questionText"></div>
+                </div>
+
+                <ul class="options" id="optionsList">
+                    <!-- Opções serão inseridas dinamicamente -->
+                </ul>
+
+                <div class="navigation">
+                    <button class="btn" id="prevBtn" onclick="previousQuestion()" style="display: none;">Anterior</button>
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                </div>
+            </div>
+
+            <!-- Tela de resultados -->
+            <div class="results" id="results">
+                <h2>Quiz Finalizado!</h2>
+                <div class="score" id="finalScore">0/40</div>
+                <div class="score-text" id="scoreText"></div>
+                <button class="btn" onclick="showGabarito()">Ver Gabarito</button>
+                <button class="btn" onclick="restartQuiz()" style="margin-left: 10px;">Refazer Quiz</button>
+            </div>
+
+            <!-- Gabarito -->
+            <div class="gabarito" id="gabarito">
+                <h3>📋 Gabarito Oficial</h3>
+                <div class="gabarito-grid" id="gabaritoGrid">
+                    <!-- Gabarito será inserido dinamicamente -->
+                </div>
+                <button class="btn" onclick="restartQuiz()">Refazer Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados das questões
+        const questions = [
+
+            {
+                question: "Qual a principal função dos rebites como elementos de fixação?",
+                options: [
+                    "Permitir a desmontagem fácil de componentes",
+                    "Unir permanentemente chapas ou peças",
+                    "Transmitir movimento de rotação",
+                    "Amortecer vibrações em estruturas"
+                ],
+                correct: 1
+            },
+            {
+                question: "No processo de rebitagem manual, qual ferramenta é utilizada para comprimir as chapas e introduzir a ponta saliente do rebite?",
+                options: [
+                    "Martelo de bola",
+                    "Estampo",
+                    "Repuxador",
+                    "Contra estampo"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual tipo de rebitagem é indicado para rebites com diâmetro superior a 6,35mm, especialmente em rebites de aço?",
+                options: [
+                    "Rebitagem a frio",
+                    "Rebitagem de recobrimento simples",
+                    "Rebitagem a quente",
+                    "Rebitagem de recobrimento duplo"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a fórmula recomendada para o cálculo do diâmetro do rebite (d) em função da menor espessura da chapa (< S)?",
+                options: [
+                    "d = < S / 1,5",
+                    "d = 1,5 + < S",
+                    "d = 1,5 * < S",
+                    "d = < S - 1,5"
+                ],
+                correct: 2
+            },
+            {
+                question: "Um dos defeitos de rebitagem causados pelo mau preparo das chapas é quando os furos estão fora do eixo, formando degraus. Qual a consequência disso?",
+                options: [
+                    "Aumento da resistência do corpo rebitado",
+                    "Diminuição da resistência do corpo rebitado",
+                    "Melhor vedação entre as chapas",
+                    "Facilitação da remoção do rebite"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o principal objetivo de se utilizar pinos e cavilhas em elementos de máquinas?",
+                options: [
+                    "Transmitir grandes torques",
+                    "Alinhar ou fixar elementos, permitindo uniões mecânicas",
+                    "Reduzir o atrito em movimentos rotativos",
+                    "Absorver choques e vibrações"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal diferença entre pinos e cavilhas, de acordo com o material didático?",
+                options: [
+                    "Pinos são usados em junções sem articulações e cavilhas em junções articuladas",
+                    "Pinos são sempre cônicos e cavilhas são cilíndricas",
+                    "Pinos são usados em junções articuladas e cavilhas em conjuntos sem articulações",
+                    "Pinos são feitos de aço e cavilhas de latão"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a função principal de uma cupilha (ou contrapino)?",
+                options: [
+                    "Unir permanentemente duas peças",
+                    "Travar outros elementos de máquinas, como porcas",
+                    "Transmitir potência entre eixos",
+                    "Servir como eixo para polias"
+                ],
+                correct: 1
+            },
+            {
+                question: "O que são roscas em elementos de máquinas?",
+                options: [
+                    "Um tipo de solda para unir peças",
+                    "Um conjunto de filetes em torno de uma superfície cilíndrica",
+                    "Um dispositivo para medir torque",
+                    "Um elemento de vedação para fluidos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Em uma rosca direita, como os filetes se inclinam em relação ao eixo do parafuso?",
+                options: [
+                    "Sobem da esquerda para a direita",
+                    "Sobem da direita para a esquerda",
+                    "São paralelos ao eixo",
+                    "São perpendiculares ao eixo"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o perfil de rosca mais comum para parafusos de fixação?",
+                options: [
+                    "Rosca quadrada",
+                    "Rosca trapezoidal",
+                    "Rosca triangular",
+                    "Rosca redonda"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a principal função das arruelas em um conjunto parafusado?",
+                options: [
+                    "Aumentar o atrito entre a porca e o parafuso",
+                    "Distribuir igualmente o aperto e proteger a superfície",
+                    "Facilitar a remoção do parafuso",
+                    "Servir como elemento de travamento principal"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual tipo de arruela é utilizada em montagens submetidas a grandes esforços e vibrações, funcionando como elemento de trava?",
+                options: [
+                    "Arruela lisa",
+                    "Arruela serrilhada",
+                    "Arruela ondulada",
+                    "Arruela de pressão"
+                ],
+                correct: 3
+            },
+            {
+                question: "Qual a principal característica das guias de rolamento em comparação com as guias de deslizamento?",
+                options: [
+                    "Maior atrito",
+                    "Menor atrito",
+                    "Maior desgaste",
+                    "Menor precisão"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a função dos mancais em elementos de máquinas?",
+                options: [
+                    "Transmitir torque entre eixos",
+                    "Servir de suporte a eixos, reduzindo atrito e amortecendo choques",
+                    "Unir permanentemente duas peças",
+                    "Gerar movimento de rotação"
+                ],
+                correct: 1
+            },
+            {
+                question: "As molas são elementos elásticos que podem ser classificadas quanto à sua forma geométrica em:",
+                options: [
+                    "De tração e compressão",
+                    "Helicoidais e planas",
+                    "De torção e flexão",
+                    "Cônicas e cilíndricas"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a função principal das chavetas em um conjunto de eixo e polia?",
+                options: [
+                    "Permitir o deslizamento axial da polia",
+                    "Transmitir o movimento de rotação (torque) entre o eixo e a polia",
+                    "Reduzir o atrito entre as peças",
+                    "Fixar a polia de forma permanente, sem possibilidade de desmontagem"
+                ],
+                correct: 1
+            },
+            {
+                question: "O que são eixos-árvore?",
+                options: [
+                    "Eixos que não transmitem potência, apenas suportam cargas",
+                    "Eixos que transmitem potência e geralmente possuem elementos como engrenagens ou polias",
+                    "Eixos flexíveis usados em sistemas de direção",
+                    "Eixos que só podem ser usados em mancais de deslizamento"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal característica dos acoplamentos rígidos?",
+                options: [
+                    "Permitem desalinhamentos angulares e radiais",
+                    "Não permitem desalinhamentos entre os eixos acoplados",
+                    "São usados para transmitir torque em baixas velocidades",
+                    "Possuem elementos elásticos para absorver choques"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a função dos retentores em elementos de máquinas?",
+                options: [
+                    "Transmitir torque",
+                    "Vedar fluidos e proteger contra a entrada de impurezas",
+                    "Suportar cargas radiais",
+                    "Amortecer vibrações"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o tipo de rebitagem onde as chapas são apenas sobrepostas e rebitadas, sendo utilizada para suportar esforços em vigas e estruturas metálicas?",
+                options: [
+                    "Rebitagem de recobrimento simples",
+                    "Rebitagem de recobrimento duplo",
+                    "Rebitagem de recobrimento",
+                    "Rebitagem a quente"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a ferramenta de rebitagem que comprime as chapas a serem rebitadas e possui um furo que aloja a extremidade livre do rebite?",
+                options: [
+                    "Estampo",
+                    "Contra estampo",
+                    "Repuxador",
+                    "Martelo de bola"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual o diâmetro do furo para um rebite com diâmetro de 6,35 mm, utilizando a constante 1,06?",
+                options: [
+                    "6,00 mm",
+                    "6,35 mm",
+                    "6,73 mm",
+                    "7,00 mm"
+                ],
+                correct: 2
+            },
+            {
+                question: "Um dos defeitos de rebitagem é o aquecimento excessivo do rebite. Qual a consequência disso?",
+                options: [
+                    "Aumento da resistência do rebite",
+                    "Contração do rebite e aumento da folga",
+                    "Melhoria na vedação",
+                    "Diminuição do deslizamento das chapas"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o processo de eliminação de defeitos de rebitagem que envolve o desgaste do material por meio da ação abrasiva de um rebolo?",
+                options: [
+                    "Com talhadeira",
+                    "Com lima",
+                    "Com esmerilhadeira",
+                    "Com saca-pinos"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a finalidade de um pino cupilhado?",
+                options: [
+                    "Unir permanentemente duas chapas",
+                    "Servir como eixo curto para uniões articuladas ou para suportar rodas, polias, etc.",
+                    "Transmitir torque em altas velocidades",
+                    "Vedar fluidos em sistemas hidráulicos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a nomenclatura da rosca que indica o diâmetro externo da rosca?",
+                options: [
+                    "Passo",
+                    "Diâmetro nominal",
+                    "Ângulo do filete",
+                    "Altura do filete"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o tipo de rosca que possui um perfil quadrado e é utilizada para transmitir movimento, como em fusos de máquinas?",
+                options: [
+                    "Rosca triangular",
+                    "Rosca trapezoidal",
+                    "Rosca quadrada",
+                    "Rosca redonda"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a arruela indicada para equipamentos sujeitos a grandes vibrações, mas com pequenos esforços, como eletrodomésticos?",
+                options: [
+                    "Arruela lisa",
+                    "Arruela de pressão",
+                    "Arruela dentada",
+                    "Arruela ondulada"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a medida de conservação de guias que é fundamental para mantê-las em bom estado?",
+                options: [
+                    "Limpá-las com solventes abrasivos",
+                    "Mantê-las sempre lubrificadas",
+                    "Expor a um meio abrasivo para polimento",
+                    "Não realizar manutenção do ajuste da régua"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os mancais de deslizamento são constituídos de uma bucha fixada num suporte. Em que tipo de aplicação são geralmente usados?",
+                options: [
+                    "Máquinas de alta rotação",
+                    "Equipamentos de precisão",
+                    "Máquinas pesadas ou equipamentos de baixa rotação",
+                    "Sistemas que exigem zero atrito"
+                ],
+                correct: 2
+            },
+            {
+                question: "As molas classificadas quanto ao esforço que suportam podem ser de:",
+                options: [
+                    "Helicoidais, planas e cônicas",
+                    "Tração, compressão e torção",
+                    "Aço, bronze e plástico",
+                    "Simples, duplas e múltiplas"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o tipo de chaveta que possui um formato retangular ou quadrado e é encaixada em rasgos no eixo e no cubo?",
+                options: [
+                    "Chaveta de disco",
+                    "Chaveta plana",
+                    "Chaveta tangencial",
+                    "Chaveta de sela"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal função dos eixos em um sistema mecânico?",
+                options: [
+                    "Transmitir torque e suportar cargas",
+                    "Apenas suportar cargas sem transmitir movimento",
+                    "Apenas transmitir movimento sem suportar cargas",
+                    "Vedar fluidos em caixas de engrenagens"
+                ],
+                correct: 0
+            },
+            {
+                question: "Os acoplamentos flexíveis são utilizados para:",
+                options: [
+                    "Conectar eixos perfeitamente alinhados",
+                    "Compensar pequenos desalinhamentos entre eixos e absorver choques",
+                    "Transmitir torque sem qualquer tipo de flexibilidade",
+                    "Aumentar a rigidez do sistema de transmissão"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a função dos anéis de vedação (O-rings) em elementos de máquinas?",
+                options: [
+                    "Transmitir movimento de rotação",
+                    "Vedar a passagem de fluidos e gases",
+                    "Suportar cargas axiais",
+                    "Conectar eixos de diferentes diâmetros"
+                ],
+                correct: 1
+            },
+            {
+                question: "As polias e correias são utilizadas principalmente para:",
+                options: [
+                    "Unir permanentemente dois eixos",
+                    "Transmitir potência e movimento entre eixos distantes",
+                    "Reduzir o atrito em mancais",
+                    "Vedar sistemas hidráulicos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o tipo de engrenagem que possui dentes retos e é utilizada para transmitir movimento entre eixos paralelos?",
+                options: [
+                    "Engrenagem cônica",
+                    "Engrenagem helicoidal",
+                    "Engrenagem de dentes retos (cilíndrica)",
+                    "Coroa e pinhão"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a principal característica dos rolamentos em comparação com os mancais de deslizamento?",
+                options: [
+                    "Maior atrito e menor velocidade",
+                    "Menor atrito e maior velocidade",
+                    "Maior necessidade de lubrificação constante",
+                    "São mais simples e baratos de fabricar"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a recomendação de segurança para rebitagem que envolve a proteção auditiva?",
+                options: [
+                    "Usar óculos de segurança",
+                    "Usar protetor auricular durante todo o trabalho",
+                    "Escrever com giz a palavra 'quente' na peça",
+                    "Verificar se todas as ferramentas estão em ordem"
+                ],
+                correct: 1
+            },
+            {
+                question: "Na rebitagem a frio, qual o diâmetro máximo recomendado para rebites trabalhados à mão?",
+                options: [
+                    "6,3 mm",
+                    "10 mm",
+                    "6,35 mm",
+                    "12 mm"
+                ],
+                correct: 0
+            },
+            {
+                question: "Qual ferramenta é utilizada na rebitagem manual e possui três partes: cabeça, corpo e ponta?",
+                options: [
+                    "Repuxador",
+                    "Contra estampo",
+                    "Estampo",
+                    "Martelo de bola"
+                ],
+                correct: 2
+            },
+            {
+                question: "O contra estampo apresenta um rebaixo semiesférico que serve para:",
+                options: [
+                    "Dar formato à segunda cabeça do rebite",
+                    "Alojar a cabeça do rebite durante a rebitagem",
+                    "Comprimir as chapas",
+                    "Medir o diâmetro do rebite"
+                ],
+                correct: 1
+            },
+            {
+                question: "No processo de rebitagem manual, qual deve ser a primeira etapa?",
+                options: [
+                    "Calcular o comprimento do rebite",
+                    "Eliminar as rebarbas dos furos",
+                    "Alinhar as chapas",
+                    "Iniciar a rebitagem pelos extremos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o tipo de rebitagem destinada a suportar esforços e permitir fechamento ou vedação, empregada em caldeiras a vapor?",
+                options: [
+                    "Rebitagem de recobrimento",
+                    "Rebitagem de recobrimento simples",
+                    "Rebitagem de recobrimento duplo",
+                    "Rebitagem a quente"
+                ],
+                correct: 1
+            },
+            {
+                question: "O que é o 'passo' na distribuição de rebites?",
+                options: [
+                    "A distância entre a borda e o rebite mais próximo",
+                    "O diâmetro do rebite",
+                    "A distância entre os eixos dos rebites de uma mesma fileira",
+                    "O comprimento da chapa"
+                ],
+                correct: 2
+            },
+            {
+                question: "Para rebites de cabeça redonda e cilíndrica, qual a fórmula para calcular o comprimento útil?",
+                options: [
+                    "L = 1 · d + S",
+                    "L = 1,5 · d + S",
+                    "L = 2 · d + S",
+                    "L = d + S"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual defeito de rebitagem ocorre quando o material disponível para rebitar a segunda cabeça não é suficiente?",
+                options: [
+                    "Rebitagem descentralizada",
+                    "Aquecimento excessivo",
+                    "Comprimento do corpo pequeno em relação à espessura da chapa",
+                    "Furos fora do eixo"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual processo de eliminação de defeitos é recomendado para chapas finas que não podem sofrer deformações?",
+                options: [
+                    "Com talhadeira",
+                    "Com esmerilhadeira",
+                    "Com lima",
+                    "Com saca-pinos"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a diferença principal entre cavilhas e pinos estriados?",
+                options: [
+                    "Cavilhas são sempre cônicas",
+                    "Cavilhas possuem entalhes externos na superfície",
+                    "Cavilhas são feitas de materiais diferentes",
+                    "Cavilhas são sempre menores"
+                ],
+                correct: 1
+            },
+            {
+                question: "Uma cupilha é feita de:",
+                options: [
+                    "Aço temperado",
+                    "Arame de secção semi-circular dobrado",
+                    "Liga de alumínio",
+                    "Bronze fundido"
+                ],
+                correct: 1
+            },
+            {
+                question: "Em uma rosca esquerda, como os filetes se comportam?",
+                options: [
+                    "Sobem da direita para a esquerda",
+                    "Sobem da esquerda para a direita",
+                    "São paralelos ao eixo",
+                    "Formam um ângulo de 90° com o eixo"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o ângulo do filete em uma rosca métrica padrão?",
+                options: [
+                    "45°",
+                    "55°",
+                    "60°",
+                    "90°"
+                ],
+                correct: 2
+            },
+            {
+                question: "As roscas triangulares podem ser classificadas em quantos tipos principais?",
+                options: [
+                    "Dois tipos",
+                    "Três tipos",
+                    "Quatro tipos",
+                    "Cinco tipos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual tipo de parafuso permite movimento de peças, como na mandíbula móvel de uma morsa?",
+                options: [
+                    "Parafuso de fixação",
+                    "Parafuso de movimento",
+                    "Parafuso de pressão",
+                    "Parafuso de cabeça"
+                ],
+                correct: 1
+            },
+            {
+                question: "A arruela ondulada é especialmente indicada para:",
+                options: [
+                    "Grandes esforços mecânicos",
+                    "Superfícies pintadas, evitando danificação do acabamento",
+                    "Sistemas de alta pressão",
+                    "Equipamentos de alta temperatura"
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal vantagem das guias de rolamento sobre as de deslizamento?",
+                options: [
+                    "Menor custo de fabricação",
+                    "Maior simplicidade construtiva",
+                    "Menor atrito devido aos elementos rolantes",
+                    "Maior resistência ao desgaste"
+                ],
+                correct: 2
+            },
+            {
+                question: "Os elementos rolantes nas guias de rolamento podem ser:",
+                options: [
+                    "Apenas esferas",
+                    "Apenas roletes",
+                    "Esferas ou roletes",
+                    "Apenas cilindros"
+                ],
+                correct: 2
+            },
+            {
+                question: "As guias de rolamento foram inicialmente utilizadas em:",
+                options: [
+                    "Máquinas industriais pesadas",
+                    "Máquinas de medição",
+                    "Equipamentos automotivos",
+                    "Sistemas hidráulicos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Para conservar as guias, é recomendado protegê-las quando expostas a:",
+                options: [
+                    "Baixas temperaturas",
+                    "Meio abrasivo",
+                    "Alta umidade",
+                    "Campos magnéticos"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os mancais de rolamento são preferidos em relação aos de deslizamento quando se necessita de:",
+                options: [
+                    "Maior simplicidade construtiva",
+                    "Menor custo inicial",
+                    "Menor atrito e maior velocidade",
+                    "Maior capacidade de carga"
+                ],
+                correct: 2
+            },
+            {
+                question: "As molas helicoidais recebem esse nome devido à sua:",
+                options: [
+                    "Função específica",
+                    "Forma geométrica em hélice",
+                    "Material de fabricação",
+                    "Capacidade de carga"
+                ],
+                correct: 1
+            },
+            {
+                question: "Uma mola de compressão trabalha principalmente sob:",
+                options: [
+                    "Esforços de tração",
+                    "Esforços de compressão",
+                    "Esforços de torção",
+                    "Esforços de flexão"
+                ],
+                correct: 1
+            },
+            {
+                question: "As molas têm a função de preservar:",
+                options: [
+                    "Apenas peças em movimento",
+                    "Apenas peças estáticas",
+                    "Peças articuladas, alavancas de contato e vedações",
+                    "Apenas sistemas de vedação"
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a função especial das molas em coletores elétricos?",
+                options: [
+                    "Gerar movimento rotativo",
+                    "Manter o carvão sob pressão",
+                    "Isolar eletricamente",
+                    "Reduzir ruído"
+                ],
+                correct: 1
+            },
+            {
+                question: "As chavetas são elementos de máquinas utilizados para:",
+                options: [
+                    "Vedar sistemas hidráulicos",
+                    "Transmitir torque entre eixo e cubo",
+                    "Suportar cargas axiais",
+                    "Reduzir vibrações"
+                ],
+                correct: 1
+            },
+            {
+                question: "Uma chaveta paralela é caracterizada por:",
+                options: [
+                    "Ter formato cônico",
+                    "Ter faces paralelas",
+                    "Ser sempre circular",
+                    "Ter rosca interna"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os eixos podem ser classificados quanto à sua função em:",
+                options: [
+                    "Fixos e móveis apenas",
+                    "Eixos de transmissão e eixos-árvore",
+                    "Rígidos e flexíveis apenas",
+                    "Lisos e ranhurados apenas"
+                ],
+                correct: 1
+            },
+            {
+                question: "Um eixo de transmissão tem como função principal:",
+                options: [
+                    "Apenas suportar cargas",
+                    "Transmitir potência sem elementos acoplados",
+                    "Suportar e guiar elementos rotativos",
+                    "Vedar sistemas de lubrificação"
+                ],
+                correct: 2
+            },
+            {
+                question: "Os acoplamentos são utilizados para:",
+                options: [
+                    "Separar dois eixos permanentemente",
+                    "Conectar dois eixos para transmitir torque",
+                    "Reduzir a velocidade de rotação",
+                    "Aumentar a potência transmitida"
+                ],
+                correct: 1
+            },
+            {
+                question: "Um acoplamento elástico possui:",
+                options: [
+                    "Apenas elementos rígidos",
+                    "Elementos que permitem pequenas deformações",
+                    "Apenas elementos metálicos",
+                    "Sistema de lubrificação forçada"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os retentores são elementos de vedação que impedem:",
+                options: [
+                    "Apenas a entrada de impurezas",
+                    "Apenas a saída de lubrificantes",
+                    "A saída de fluidos e a entrada de impurezas",
+                    "Apenas a passagem de gases"
+                ],
+                correct: 2
+            },
+            {
+                question: "Um retentor é geralmente instalado:",
+                options: [
+                    "Na parte externa da máquina",
+                    "Entre partes móveis e fixas",
+                    "Apenas em sistemas hidráulicos",
+                    "Somente em baixas temperaturas"
+                ],
+                correct: 1
+            },
+            {
+                question: "As correias em V são utilizadas em transmissões por:",
+                options: [
+                    "Atrito lateral",
+                    "Encaixe geométrico nas polias",
+                    "Aderência magnética",
+                    "Pressão hidráulica"
+                ],
+                correct: 1
+            },
+            {
+                question: "A principal vantagem das transmissões por correia é:",
+                options: [
+                    "Transmitir grandes torques",
+                    "Permitir transmissão entre eixos distantes",
+                    "Funcionar sem manutenção",
+                    "Ter eficiência de 100%"
+                ],
+                correct: 1
+            },
+            {
+                question: "As engrenagens cilíndricas de dentes retos são utilizadas para transmitir movimento entre:",
+                options: [
+                    "Eixos concorrentes",
+                    "Eixos paralelos",
+                    "Eixos reversos",
+                    "Eixos perpendiculares"
+                ],
+                correct: 1
+            },
+            {
+                question: "Uma engrenagem cônica é utilizada quando os eixos são:",
+                options: [
+                    "Paralelos",
+                    "Concorrentes",
+                    "Distantes",
+                    "Colineares"
+                ],
+                correct: 1
+            },
+            {
+                question: "O módulo de uma engrenagem é:",
+                options: [
+                    "O número de dentes",
+                    "A relação entre o diâmetro primitivo e o número de dentes",
+                    "O diâmetro externo",
+                    "A largura do dente"
+                ],
+                correct: 1
+            },
+            {
+                question: "Em um sistema de engrenagens, a relação de transmissão é determinada por:",
+                options: [
+                    "O material das engrenagens",
+                    "A razão entre os números de dentes",
+                    "O tipo de lubrificação",
+                    "A velocidade de entrada apenas"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os rolamentos de esferas são adequados para:",
+                options: [
+                    "Apenas cargas radiais",
+                    "Apenas cargas axiais",
+                    "Cargas radiais e axiais combinadas",
+                    "Apenas baixas velocidades"
+                ],
+                correct: 2
+            },
+            {
+                question: "A lubrificação de rolamentos pode ser feita com:",
+                options: [
+                    "Apenas óleo",
+                    "Apenas graxa",
+                    "Óleo ou graxa",
+                    "Apenas lubrificação sólida"
+                ],
+                correct: 2
+            },
+            {
+                question: "A vida útil de um rolamento depende principalmente de:",
+                options: [
+                    "Apenas da velocidade",
+                    "Apenas da carga aplicada",
+                    "Da carga, velocidade e lubrificação",
+                    "Apenas do material"
+                ],
+                correct: 2
+            },
+            {
+                question: "Um mancal de deslizamento com bucha de bronze é adequado para:",
+                options: [
+                    "Altas velocidades apenas",
+                    "Cargas pesadas e baixas velocidades",
+                    "Apenas ambientes secos",
+                    "Apenas movimentos intermitentes"
+                ],
+                correct: 1
+            },
+            {
+                question: "A folga em um mancal de deslizamento deve ser:",
+                options: [
+                    "A maior possível",
+                    "Zero",
+                    "Adequada para permitir lubrificação",
+                    "Variável durante o funcionamento"
+                ],
+                correct: 2
+            },
+            {
+                question: "As buchas autolubrificantes contêm:",
+                options: [
+                    "Apenas metal",
+                    "Lubrificante sólido incorporado",
+                    "Sistema de lubrificação externa",
+                    "Apenas material cerâmico"
+                ],
+                correct: 1
+            },
+            {
+                question: "Em uma transmissão por correia, o escorregamento pode ser causado por:",
+                options: [
+                    "Tensão excessiva na correia",
+                    "Tensão insuficiente na correia",
+                    "Velocidade muito baixa",
+                    "Polias muito grandes"
+                ],
+                correct: 1
+            },
+            {
+                question: "A tensão adequada em uma correia é importante para:",
+                options: [
+                    "Evitar escorregamento e desgaste excessivo",
+                    "Aumentar a velocidade",
+                    "Reduzir o ruído apenas",
+                    "Facilitar a instalação"
+                ],
+                correct: 0
+            },
+            {
+                question: "As correias dentadas são utilizadas quando se necessita de:",
+                options: [
+                    "Transmissão silenciosa apenas",
+                    "Transmissão sem escorregamento",
+                    "Baixo custo apenas",
+                    "Facilidade de manutenção apenas"
+                ],
+                correct: 1
+            },
+            {
+                question: "O alinhamento das polias em uma transmissão por correia deve ser:",
+                options: [
+                    "Aproximado",
+                    "Preciso para evitar desgaste da correia",
+                    "Desnecessário",
+                    "Variável conforme a carga"
+                ],
+                correct: 1
+            },
+            {
+                question: "Uma junta universal é utilizada para:",
+                options: [
+                    "Conectar eixos paralelos",
+                    "Conectar eixos com ângulo entre si",
+                    "Apenas reduzir velocidade",
+                    "Apenas aumentar torque"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os elementos de fixação roscados permitem:",
+                options: [
+                    "Apenas união permanente",
+                    "União desmontável",
+                    "Apenas transmissão de movimento",
+                    "Apenas vedação"
+                ],
+                correct: 1
+            },
+            {
+                question: "A pré-carga em parafusos de fixação serve para:",
+                options: [
+                    "Facilitar a montagem",
+                    "Garantir a união mesmo com cargas externas",
+                    "Reduzir o peso do conjunto",
+                    "Melhorar a aparência"
+                ],
+                correct: 1
+            },
+            {
+                question: "O torque de aperto em parafusos deve ser:",
+                options: [
+                    "Sempre máximo",
+                    "Sempre mínimo",
+                    "Adequado ao material e aplicação",
+                    "Variável aleatoriamente"
+                ],
+                correct: 2
+            },
+            {
+                question: "Uma porca auto-travante possui:",
+                options: [
+                    "Rosca diferente",
+                    "Elemento que impede o afrouxamento",
+                    "Material especial apenas",
+                    "Formato hexagonal diferente"
+                ],
+                correct: 1
+            },
+            {
+                question: "Os parafusos de cabeça sextavada são apertados com:",
+                options: [
+                    "Chave de fenda",
+                    "Chave Phillips",
+                    "Chave inglesa ou soquete",
+                    "Alicate"
+                ],
+                correct: 2
+            },
+            {
+                question: "A rosca métrica é identificada pela letra:",
+                options: [
+                    "W",
+                    "M",
+                    "R",
+                    "T"
+                ],
+                correct: 1
+            },
+            {
+                question: "O passo de uma rosca métrica M10 x 1,5 é:",
+                options: [
+                    "10 mm",
+                    "1,5 mm",
+                    "11,5 mm",
+                    "15 mm"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Gabarito das respostas (array com as respostas corretas)
+        const gabarito = [
+            'b', 'c', 'c', 'c', 'b', 'b', 'c', 'b', 'b', 'b',
+            'c', 'b', 'd', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
+            'c', 'c', 'c', 'b', 'c', 'b', 'b', 'c', 'c', 'b',
+            'c', 'b', 'b', 'a', 'b', 'b', 'b', 'c', 'b', 'b',
+            'a', 'c', 'b', 'b', 'b', 'c', 'b', 'c', 'b', 'b',
+            'c', 'b', 'b', 'b', 'b', 'b', 'c', 'c', 'b', 'b',
+            'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
+            'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
+            'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b',
+            'b', 'b', 'a', 'b', 'b', 'b', 'b', 'b', 'b', 'b'
+        ];
+
+        // Variáveis do jogo
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let score = 0;
+
+        // Função para iniciar o quiz
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            showQuestion();
+        }
+
+        // Função para mostrar a questão atual
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `Questão ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.className = 'option';
+                li.innerHTML = `
+                    <label>
+                        <input type="radio" name="answer" value="${index}">
+                        ${String.fromCharCode(97 + index)}) ${option}
+                    </label>
+                `;
+                li.addEventListener('click', () => selectOption(index));
+                optionsList.appendChild(li);
+            });
+            
+            // Atualizar barra de progresso
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Controlar botões de navegação
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'inline-block' : 'none';
+            document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Finalizar' : 'Próxima';
+            
+            // Restaurar resposta anterior se existir
+            if (userAnswers[currentQuestion] !== undefined) {
+                selectOption(userAnswers[currentQuestion]);
+            }
+        }
+
+        // Função para selecionar uma opção
+        function selectOption(index) {
+            // Remover seleção anterior
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Selecionar nova opção
+            const options = document.querySelectorAll('.option');
+            options[index].classList.add('selected');
+            
+            // Marcar o radio button
+            const radio = options[index].querySelector('input[type="radio"]');
+            radio.checked = true;
+            
+            // Salvar resposta
+            userAnswers[currentQuestion] = index;
+        }
+
+        // Função para ir para a próxima questão
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === undefined) {
+                alert('Por favor, selecione uma resposta antes de continuar.');
+                return;
+            }
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        // Função para voltar à questão anterior
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        // Função para finalizar o quiz
+        function finishQuiz() {
+            // Calcular pontuação
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    score++;
+                }
+            }
+            
+            // Mostrar resultados
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+            
+            const percentage = (score / questions.length) * 100;
+            let scoreText = '';
+            
+            if (percentage >= 90) {
+                scoreText = '🏆 Excelente! Você domina o assunto!';
+            } else if (percentage >= 70) {
+                scoreText = '👏 Muito bom! Você tem um bom conhecimento!';
+            } else if (percentage >= 50) {
+                scoreText = '👍 Bom trabalho! Continue estudando!';
+            } else {
+                scoreText = '📚 Continue estudando para melhorar!';
+            }
+            
+            document.getElementById('scoreText').textContent = scoreText;
+        }
+
+        // Função para mostrar o gabarito
+        function showGabarito() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('gabarito').style.display = 'block';
+            
+            const gabaritoGrid = document.getElementById('gabaritoGrid');
+            gabaritoGrid.innerHTML = '';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const div = document.createElement('div');
+                div.className = 'gabarito-item';
+                
+                const userAnswer = userAnswers[i] !== undefined ? String.fromCharCode(97 + userAnswers[i]) : '-';
+                const correctAnswer = String.fromCharCode(97 + questions[i].correct);
+                const isCorrect = userAnswers[i] === questions[i].correct;
+                
+                div.innerHTML = `
+                    <div>Q${i + 1}</div>
+                    <div style="color: ${isCorrect ? 'green' : 'red'}">
+                        Sua: ${userAnswer}
+                    </div>
+                    <div style="color: green">
+                        Correta: ${correctAnswer}
+                    </div>
+                `;
+                
+                if (isCorrect) {
+                    div.style.backgroundColor = '#e8f5e8';
+                } else {
+                    div.style.backgroundColor = '#ffebee';
+                }
+                
+                gabaritoGrid.appendChild(div);
+            }
+        }
+
+        // Função para reiniciar o quiz
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            score = 0;
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('gabarito').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
